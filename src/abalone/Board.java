@@ -1,3 +1,5 @@
+package abalone;
+
 public class Board {
     private Square[][] boardSquares;
     private final int BOARD_SIZE = 9;
@@ -14,6 +16,7 @@ public class Board {
         }
 
         defineVoidSquares();
+        linkSquares();
     }
 
     void defineVoidSquares() {
@@ -48,6 +51,38 @@ public class Board {
             }
             offsetj--;
             boardSquares[i][BOARD_SIZE_GUTTER-2] = new Square(SquareContent.VOID);
+        }
+    }
+
+    void linkSquares(){
+        for(int j = 0; j<BOARD_SIZE_GUTTER; j++) {
+            for(int i = 0; i<BOARD_SIZE_GUTTER; i++) {
+                Square right = null;
+                Square left = null;
+                Square topRight = null;
+                Square topLeft = null;
+                Square bottomRight = null;
+                Square bottomLeft= null;
+                if(i+1 < BOARD_SIZE_GUTTER){
+                    right = boardSquares[i+1][j];
+                }
+                if(i-1 >= 0) {
+                    left =boardSquares[i-1][j];
+                }
+                if((i+1 < BOARD_SIZE_GUTTER) && (j-1 >= 0)){
+                    topRight = boardSquares[i+1][j-1];
+                }
+                if(j-1 >= 0){
+                    topLeft = boardSquares[i][j-1];
+                }
+                if(j+1 < BOARD_SIZE_GUTTER){
+                    bottomRight = boardSquares[i][j+1];
+                }
+                if((j+1 < BOARD_SIZE_GUTTER) && (i-1 >= 0)){
+                    bottomLeft = boardSquares[i-1][j+1];
+                }
+                boardSquares[i][j].setNeighbors(right,left,topRight,topLeft,bottomRight,bottomLeft);
+            }
         }
     }
 
@@ -129,8 +164,9 @@ public class Board {
                         }
                     }
                 //Middle part of square
-                    rep[i-1][1] = rep[i-1][1]+"│ "+currentContent.toString()+" ";
-                    //Debug rep[i-1][1] = rep[i-1][1]+"│"+i+" "+j;
+                    //rep[i-1][1] = rep[i-1][1]+"│ "+currentContent.toString()+" ";
+                    //Debug
+                    rep[i-1][1] = rep[i-1][1]+"│"+i+currentContent.toString()+j;
                     if(nextContent.equals(SquareContent.VOID)){
                         rep[i-1][1] = rep[i-1][1]+"│";
                     }
@@ -159,6 +195,14 @@ public class Board {
 
     public static void main(String[] args) {
         Board test = new Board();
+        Square sq = test.boardSquares[7][5];
+        sq.setContent(SquareContent.BLACK);
+        sq.getRight().setContent(SquareContent.WHITE);
+        /*sq.getLeft().setContent(SquareContent.BLACK);
+        sq.getTopRight().setContent(SquareContent.WHITE);
+        sq.getTopLeft().setContent(SquareContent.WHITE);
+        sq.getBottomRight().setContent(SquareContent.WHITE);
+        sq.getBottomLeft().setContent(SquareContent.BLACK);*/
         System.out.println(test.testBoard());
         System.out.println(test);
     }

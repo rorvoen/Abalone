@@ -1,6 +1,8 @@
+package abalone;
+
 public class Square {
-    private Square top;
-    private Square bottom;
+    private Square right;
+    private Square left;
     private Square topRight;
     private Square topLeft;
     private Square bottomRight;
@@ -12,20 +14,22 @@ public class Square {
     }
 
     //----- Getters and Setters -----//
-    public Square getTop() {
-        return top;
+
+
+    public Square getRight() {
+        return right;
     }
 
-    public void setTop(Square top) {
-        this.top = top;
+    public void setRight(Square right) {
+        this.right = right;
     }
 
-    public Square getBottom() {
-        return bottom;
+    public Square getLeft() {
+        return left;
     }
 
-    public void setBottom(Square bottom) {
-        this.bottom = bottom;
+    public void setLeft(Square left) {
+        this.left = left;
     }
 
     public Square getTopRight() {
@@ -66,5 +70,14 @@ public class Square {
 
     public void setContent(SquareContent content) {
         this.content = content;
+    }
+
+    public void setNeighbors(Square right, Square left, Square topRight, Square topLeft, Square bottomRight, Square bottomLeft) {
+        this.right = right;
+        this.left = left;
+        this.topRight = topRight;
+        this.topLeft = topLeft;
+        this.bottomRight = bottomRight;
+        this.bottomLeft = bottomLeft;
     }
 }

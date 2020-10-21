@@ -1,3 +1,5 @@
+package abalone;
+
 public enum SquareContent {
     VOID,
     EMPTY,
