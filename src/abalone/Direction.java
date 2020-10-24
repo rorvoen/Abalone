@@ -1,6 +1,6 @@
 package abalone;
 
-public enum MoveDirection {
+public enum Direction {
     RIGHT,
     LEFT,
     TOPRIGHT,
