@@ -1,9 +1,6 @@
 package abalone;
 
-import abalone.exceptions.FullMoveException;
-import abalone.exceptions.NoMarbleException;
-import abalone.exceptions.NotAlignedException;
-import abalone.exceptions.VoidSquareException;
+import abalone.exceptions.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -58,8 +55,104 @@ public class Move {
         }
     }
 
-    public void performMove(){
+    public void performMove() throws ImpossibleMoveException {
+        boolean noVoid = true;
+        boolean sumito = true;
+        int i = 0;
+        while (i<polynomial.size() && noVoid == true && sumito == true){
+            Square sq = polynomial.get(i);
+            Square moveSquare = sq.getNeighbor(moveDirection);
+            // On vérifie si le mouvement des billes du polynome n'entraîne pas de mise hors plateau de ses propres billes
+            if(moveSquare.getContent().equals(SquareContent.VOID)){
+                noVoid = false;
+            }
+            // On vérifie si les billes situées sur la trajectoire des billes du polynome, peuvent être poussées en sumito
+            if(moveSquare.getContent().equals(sq.getContent().getOpponentColor())){
+                sumito = checkSumitoPossible();
+            }
+            i++;
+        }
+        if(!noVoid || !sumito) {
+            throw new ImpossibleMoveException();
+        } else {
+            for (Square sq : polynomial) {
+                Square moveSquare = sq.getNeighbor(moveDirection);
+                if(moveSquare.getContent().equals(SquareContent.EMPTY)){
+                    // On déplace simplement la bille
+                    moveMarble(sq);
+                } else if (moveSquare.getContent().equals(sq.getContent().getOpponentColor())) {
+                    // Si cas de sumito on l'execute avant de déplacer la bille
+                    sumitoMarble(sq);
+                    moveMarble(sq);
+                } else if(moveSquare.getContent().equals(sq.getContent())){
+                    // On Cherche la bille en bout de ligne, la première à bouger, soit sur une case vide, soit sur une bille adverse
+                    int lineEndIndex = -1;
+                    if(polynomial.get(0).getNeighbor(moveDirection).getContent().equals(SquareContent.EMPTY) ||
+                       polynomial.get(0).getNeighbor(moveDirection).getContent().equals(polynomial.get(0).getContent().getOpponentColor())){
+                        lineEndIndex = 0;
+                    } else if (polynomial.get(polynomial.size()-1).getNeighbor(moveDirection).getContent().equals(SquareContent.EMPTY) ||
+                               polynomial.get(polynomial.size()-1).getNeighbor(moveDirection).getContent().equals(polynomial.get(polynomial.size()-1).getContent().getOpponentColor())){
+                        lineEndIndex = polynomial.size()-1;
+                    }
+                    // Selon le cas on execute le mouvement approprié
+                    if(lineEndIndex == 0){
+                        for(int j = lineEndIndex; j<polynomial.size(); j++){
+                            if(j == lineEndIndex && polynomial.get(j).getNeighbor(moveDirection).getContent().equals(polynomial.get(j).getContent().getOpponentColor())){
+                                sumitoMarble(polynomial.get(j));
+                            }
+                            moveMarble(polynomial.get(j));
+                        }
+                    } else {
+                        for(int j = lineEndIndex; j>=0; j--){
+                            if(j == lineEndIndex && polynomial.get(j).getNeighbor(moveDirection).getContent().equals(polynomial.get(j).getContent().getOpponentColor())){
+                                sumitoMarble(polynomial.get(j));
+                            }
+                            moveMarble(polynomial.get(j));
+                        }
+                    }
+                }
+            }
+        }
+    }
 
+    public boolean checkSumitoPossible() {
+        ArrayList<Square> opponentMarbles = new ArrayList<>();
+        boolean ret = false;
+        for(Square sq : polynomial){
+            Square moveSquare = sq.getNeighbor(moveDirection);
+            if (moveSquare.getContent().equals(sq.getContent().getOpponentColor())) {
+                opponentMarbles.add(moveSquare);
+            }
+        }
+        if(opponentMarbles.size()<this.polynomial.size()){
+            ret = true;
+        }
+        int i = 0;
+        while ((i<opponentMarbles.size() && ret == true)){
+            if(opponentMarbles.get(i).getNeighbor(moveDirection).getContent().equals(SquareContent.WHITE) ||
+               opponentMarbles.get(i).getNeighbor(moveDirection).getContent().equals(SquareContent.BLACK)){
+                ret = false;
+            }
+            i++;
+        }
+        return ret;
+    }
+
+    public void moveMarble(Square marbleToMove){
+        Square moveSquare = marbleToMove.getNeighbor(moveDirection);
+        moveSquare.setContent(marbleToMove.getContent());
+        marbleToMove.setContent(SquareContent.EMPTY);
+    }
+
+    public void sumitoMarble(Square marbleToMove){
+        Square moveSquare = marbleToMove.getNeighbor(moveDirection);
+        Square sumitoMoveSquare = moveSquare.getNeighbor(moveDirection);
+        if(sumitoMoveSquare.getContent().equals(SquareContent.VOID)){
+            moveSquare.setContent(SquareContent.EMPTY);
+            System.out.println("Une bille poussée en dehors du plateau !");
+        } else {
+            moveMarble(moveSquare);
+        }
     }
 
     public ArrayList<Square> getPolynomial() {

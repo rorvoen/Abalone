@@ -1,9 +1,6 @@
 package abalone;
 
-import abalone.exceptions.FullMoveException;
-import abalone.exceptions.NoMarbleException;
-import abalone.exceptions.NotAlignedException;
-import abalone.exceptions.VoidSquareException;
+import abalone.exceptions.*;
 
 public class Board {
     private Square[][] boardSquares;
@@ -112,7 +109,7 @@ public class Board {
         return ret;
     }
 
-    public String toString() {
+    public String toString(boolean coords) {
         String[][] rep = new String[BOARD_SIZE+1][2];
         // Init array
         for(int h=0; h<rep.length; h++){
@@ -175,8 +172,11 @@ public class Board {
                         }
                     }
                 //Middle part of square
-                    rep[i-1][1] = rep[i-1][1]+"│ "+currentContent.toString()+" ";
-                    //Debug rep[i-1][1] = rep[i-1][1]+"│"+i+currentContent.toString()+j;
+                    if(coords) {
+                        rep[i-1][1] = rep[i-1][1]+"│"+i+currentContent.toString()+j;
+                    } else {
+                        rep[i-1][1] = rep[i-1][1]+"│ "+currentContent.toString()+" ";
+                    }
                     if(nextContent.equals(SquareContent.VOID)){
                         rep[i-1][1] = rep[i-1][1]+"│";
                     }
@@ -212,6 +212,12 @@ public class Board {
         test.getBoardSquares()[4][8].setContent(SquareContent.BLACK);
         test.getBoardSquares()[4][8].getLeft().setContent(SquareContent.BLACK);
         test.getBoardSquares()[4][7].getLeft().setContent(SquareContent.BLACK);
+
+        test.getBoardSquares()[3][8].setContent(SquareContent.WHITE);
+        test.getBoardSquares()[3][8].getLeft().setContent(SquareContent.WHITE);
+        //test.getBoardSquares()[3][7].getLeft().setContent(SquareContent.WHITE);
+
+        test.getBoardSquares()[4][6].getLeft().setContent(SquareContent.WHITE);
         Move testMove = new Move(Direction.LEFT);
         try {
             testMove.addMarbleToMove(test.getBoardSquares()[4][8]);
@@ -226,9 +232,9 @@ public class Board {
         } catch (NotAlignedException e) {
             e.printStackTrace();
         }
-
+        
 
         System.out.println(test.testBoard());
-        System.out.println(test);
+        System.out.println(test.toString(false));
     }
 }
