@@ -1,11 +1,20 @@
-package abalone;
+package abalone.model;
 
-import abalone.exceptions.*;
+import abalone.enums.SquareContent;
+import abalone.test.TestConfig;
 
+/**
+ * The board of the game. <br>
+ * The hexagonal board is represented by a 11x11 array of square, one square is one position on the board. <br>
+ * The fact that the array has a square shape imply that there is more squares in the array than of the board. <br>
+ * The additional squares have a void content to differentiate them. <br>
+ * The gutter all around the board is also represented to make the ejection handing easier.
+ */
 public class Board {
     private Square[][] boardSquares;
-    private final int BOARD_SIZE = 9;
-    private final int BOARD_SIZE_GUTTER = BOARD_SIZE+2;
+    public final int BOARD_SIZE = 9;
+    public final int BOARD_SIZE_GUTTER = BOARD_SIZE+2;
+    private TestConfig testConfig = null;
 
     public Board() {
         this.boardSquares = new Square[BOARD_SIZE_GUTTER][BOARD_SIZE_GUTTER];
@@ -19,9 +28,16 @@ public class Board {
 
         defineVoidSquares();
         linkSquares();
+        initStartPositions();
     }
 
-    void defineVoidSquares() {
+    public Board(TestConfig testConfig){
+        this();
+        this.testConfig = testConfig;
+        initStartPositions();
+    }
+
+    private void defineVoidSquares() {
         // Define that the first column of the board is void
         for(int i=0; i<BOARD_SIZE_GUTTER; i++){
             boardSquares[0][i].setContent(SquareContent.VOID);
@@ -56,7 +72,7 @@ public class Board {
         }
     }
 
-    void linkSquares(){
+    private void linkSquares() {
         for(int j = 0; j<BOARD_SIZE_GUTTER; j++) {
             for(int i = 0; i<BOARD_SIZE_GUTTER; i++) {
                 Square right = null;
@@ -88,25 +104,62 @@ public class Board {
         }
     }
 
-    String testBoard() {
-        String ret = "";
+    private void initStartPositions() {
+        if(testConfig != null) {
+            this.resetBoard();
+            testConfig.setupTestConfig(this);
+        } else {
+            //Première ligne noire
+            this.boardSquares[1][5].setContent(SquareContent.BLACK);
+            this.boardSquares[1][6].setContent(SquareContent.BLACK);
+            this.boardSquares[1][7].setContent(SquareContent.BLACK);
+            this.boardSquares[1][8].setContent(SquareContent.BLACK);
+            this.boardSquares[1][9].setContent(SquareContent.BLACK);
+
+            //Deuxième ligne noire
+            this.boardSquares[2][4].setContent(SquareContent.BLACK);
+            this.boardSquares[2][5].setContent(SquareContent.BLACK);
+            this.boardSquares[2][6].setContent(SquareContent.BLACK);
+            this.boardSquares[2][7].setContent(SquareContent.BLACK);
+            this.boardSquares[2][8].setContent(SquareContent.BLACK);
+            this.boardSquares[2][9].setContent(SquareContent.BLACK);
+
+            //Troisième ligne noire
+            this.boardSquares[3][5].setContent(SquareContent.BLACK);
+            this.boardSquares[3][6].setContent(SquareContent.BLACK);
+            this.boardSquares[3][7].setContent(SquareContent.BLACK);
+
+            //Première ligne blanche
+            this.boardSquares[9][1].setContent(SquareContent.WHITE);
+            this.boardSquares[9][2].setContent(SquareContent.WHITE);
+            this.boardSquares[9][3].setContent(SquareContent.WHITE);
+            this.boardSquares[9][4].setContent(SquareContent.WHITE);
+            this.boardSquares[9][5].setContent(SquareContent.WHITE);
+
+            //Deuxième ligne blanche
+            this.boardSquares[8][1].setContent(SquareContent.WHITE);
+            this.boardSquares[8][2].setContent(SquareContent.WHITE);
+            this.boardSquares[8][3].setContent(SquareContent.WHITE);
+            this.boardSquares[8][4].setContent(SquareContent.WHITE);
+            this.boardSquares[8][5].setContent(SquareContent.WHITE);
+            this.boardSquares[8][6].setContent(SquareContent.WHITE);
+
+            //Troisième ligne blanche
+            this.boardSquares[7][3].setContent(SquareContent.WHITE);
+            this.boardSquares[7][4].setContent(SquareContent.WHITE);
+            this.boardSquares[7][5].setContent(SquareContent.WHITE);
+        }
+    }
+
+    private void resetBoard() {
         for (int i=0; i<BOARD_SIZE_GUTTER; i++) {
             for (int j=0; j<BOARD_SIZE_GUTTER; j++) {
-                if(boardSquares[i][j].getContent().equals(SquareContent.EMPTY)){
-                    ret = ret + "□ ";
-                } else {
-                    ret = ret + boardSquares[i][j].getContent().toString() +" ";
-                }
-                if(i==0 && j==BOARD_SIZE_GUTTER-1) {
-                    ret = ret + "j";
-                }
-            }
-            ret = ret + "\n";
-            if(i == BOARD_SIZE_GUTTER-1){
-                ret = ret + "i";
+                boardSquares[i][j] = new Square(SquareContent.EMPTY,i,j);
             }
         }
-        return ret;
+
+        defineVoidSquares();
+        linkSquares();
     }
 
     public String toString(boolean coords) {
@@ -205,36 +258,5 @@ public class Board {
 
     public Square[][] getBoardSquares() {
         return boardSquares;
-    }
-
-    public static void main(String[] args) {
-        Board test = new Board();
-        test.getBoardSquares()[4][8].setContent(SquareContent.BLACK);
-        test.getBoardSquares()[4][8].getLeft().setContent(SquareContent.BLACK);
-        test.getBoardSquares()[4][7].getLeft().setContent(SquareContent.BLACK);
-
-        test.getBoardSquares()[3][8].setContent(SquareContent.WHITE);
-        test.getBoardSquares()[3][8].getLeft().setContent(SquareContent.WHITE);
-        //test.getBoardSquares()[3][7].getLeft().setContent(SquareContent.WHITE);
-
-        test.getBoardSquares()[4][6].getLeft().setContent(SquareContent.WHITE);
-        Move testMove = new Move(Direction.LEFT);
-        try {
-            testMove.addMarbleToMove(test.getBoardSquares()[4][8]);
-            testMove.addMarbleToMove(test.getBoardSquares()[4][8].getLeft());
-            testMove.addMarbleToMove(test.getBoardSquares()[4][7].getLeft());
-        } catch (NoMarbleException e) {
-            e.printStackTrace();
-        } catch (VoidSquareException e) {
-            e.printStackTrace();
-        } catch (FullMoveException e) {
-            e.printStackTrace();
-        } catch (NotAlignedException e) {
-            e.printStackTrace();
-        }
-        
-
-        System.out.println(test.testBoard());
-        System.out.println(test.toString(false));
     }
 }

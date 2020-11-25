@@ -1,8 +1,14 @@
-package abalone;
+package abalone.model;
 
-import java.util.ArrayList;
+import abalone.enums.Direction;
+import abalone.enums.SquareContent;
+
 import java.util.HashMap;
 
+/**
+ * A square represent one position on the board <br>
+ * Each square contain its position on the board and all its neighboring squares
+ */
 public class Square {
     private Square right;
     private Square left;
@@ -131,7 +137,7 @@ public class Square {
     }
 
     public String toString() {
-        return "Content : "+this.content+" | i : "+this.i+" | j : "+this.j;
+        return "Content : "+this.content+" | v : "+this.i+" | h : "+this.j;
     }
 
     /*public boolean equals(Square square){

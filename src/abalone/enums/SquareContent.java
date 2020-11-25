@@ -1,5 +1,10 @@
-package abalone;
+package abalone.enums;
 
+/**
+ * Possible contents of a square <br>
+ * VOID is for squares which are not part of the board
+ * EMPTY is for squares of the board with no marble
+ */
 public enum SquareContent {
     VOID,
     EMPTY,
@@ -11,7 +16,7 @@ public enum SquareContent {
         switch(this) {
             case VOID: return "■";
             case EMPTY: return " ";
-            case BLACK: return "⏺";
+            case BLACK: return "●";
             case WHITE: return "○";
             default: throw new IllegalArgumentException();
         }
